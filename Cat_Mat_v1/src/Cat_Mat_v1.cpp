@@ -66,14 +66,16 @@ int distance;
 
 int feather_Movement;
 int rand_Wiggle;
-int cat;
+
 bool cat_Presence = false;
 bool cat_Has_Left_The_Chat = false;
 bool kitty_Dont_Play_Flag = false;
 bool wiggle_Lock_Out = false;
 unsigned int kitty_Time;
 int cat_Game_Select;
+int cat;
 bool cat_Detected = false;
+bool what_Cat = true;
 bool game_Lock= false;
 unsigned int catUpdateTime;
 
@@ -159,7 +161,7 @@ void loop() {
   cat_Has_Left_The_Chat = (distance>500||(measure.RangeStatus == 4));
   Serial.printf("distance = %i\n",distance);
 
-  if(distance >=150){
+  if(distance >=200){
     cat_Detected=true;
   }
     if(cat_Has_Left_The_Chat){
@@ -174,7 +176,8 @@ void loop() {
         }
       }
     }else{
-      kitty_Dont_Play_Flag=false;
+      kitty_Dont_Play_Flag = false;
+      cat_Detected = false;
   }
     if(!cat_Detected && (millis()-kitty_Time>60000)){
       sleepULP();
@@ -182,7 +185,13 @@ void loop() {
 
 
     cat = cat_Detected;
- if(cat != cat_Detected){
+ if(cat_Detected && (millis()-catUpdateTime>10000)){
+    mqtt.Update();
+    Cat_Is_Here.publish(cat);
+    catUpdateTime = millis();
+    Serial.printf("\ncat detected bool = %i\n",cat);
+
+  }else if(!cat_Detected && (millis()-catUpdateTime>10000)){
     mqtt.Update();
     Cat_Is_Here.publish(cat);
     catUpdateTime = millis();
