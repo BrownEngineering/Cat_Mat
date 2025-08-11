@@ -185,17 +185,15 @@ void loop() {
 
 
     cat = cat_Detected;
- if(cat_Detected && (millis()-catUpdateTime>10000)){
-    mqtt.Update();
+ if(what_Cat != cat_Detected){
+  what_Cat=cat_Detected;
+
+   //(millis()-catUpdateTime>10000)
+   //// mqtt.Update();
     Cat_Is_Here.publish(cat);
     catUpdateTime = millis();
     Serial.printf("\ncat detected bool = %i\n",cat);
 
-  }else if(!cat_Detected && (millis()-catUpdateTime>10000)){
-    mqtt.Update();
-    Cat_Is_Here.publish(cat);
-    catUpdateTime = millis();
-    Serial.printf("\ncat detected bool = %i\n",cat);
   }
 
 
@@ -224,29 +222,24 @@ void loop() {
         start_x = random(0,12);
         start_y = random(0,20);
         laser_Chase(start_x,start_y);
-
       break;
     
     ///whack_A_Dot
-
-      case 1:
-      
+      case 1:      
         whack_A_Dot();
       break;
+
     ///laser_Chase_Verticle
-    
       case 2:
-      
         laser_Chase_Vertical();
-      
       break;
+
     ///mouse_Run
       // case 3:
 
       // break;
-
+      
       default:
-
       pixel.clear();
       pixel.show();
       break;
