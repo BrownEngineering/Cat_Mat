@@ -69,7 +69,7 @@ int rand_Wiggle;
 
 bool cat_Presence = false;
 bool cat_Has_Left_The_Chat = false;
-bool kitty_Dont_Play_Flag = false;
+
 bool wiggle_Lock_Out = false;
 unsigned int kitty_Time;
 int cat_Game_Select;
@@ -127,6 +127,7 @@ void setup() {
 
   myStepper.setSpeed(15);
 
+  kitty_Time = millis();
   wiggle_Timer.startTimer(100);
   light_Timer.startTimer(100);
 
@@ -158,42 +159,47 @@ void loop() {
   lox.rangingTest(&measure,true);
 
   distance = measure.RangeMilliMeter;
+  //cat_Presence = (distance>140);
   cat_Has_Left_The_Chat = (distance>500||(measure.RangeStatus == 4));
   Serial.printf("distance = %i\n",distance);
 
-  if(distance >=200){
+  if((distance >=140) && (distance<=499)){
     cat_Detected=true;
   }
-    if(cat_Has_Left_The_Chat){
-      if(!kitty_Dont_Play_Flag){
-        kitty_Dont_Play_Flag = true;
-        kitty_Time = millis();
-      }else{
-        if(millis()-kitty_Time>=10000){
-          cat_Detected=false;
-          wiggle_Lock_Out=false;
-          kitty_Dont_Play_Flag=false;
-        }
-      }
-    }else{
-      kitty_Dont_Play_Flag = false;
-      cat_Detected = false;
+  // if(!cat_Detected){
+  //   kitty_Time=millis();
+  // }
+  if(cat_Has_Left_The_Chat){
+    //kitty_Time = millis();
+    cat_Detected = false;
+    wiggle_Lock_Out = false;
   }
-    if(!cat_Detected && (millis()-kitty_Time>60000)){
+  //   if(cat_Has_Left_The_Chat){
+  //     if(!kitty_Dont_Play_Flag){
+  //       kitty_Dont_Play_Flag = true;
+  //       kitty_Time = millis();
+  //     }else{
+  //       if(millis()-kitty_Time>=10000){
+  //         cat_Detected=false;
+  //         wiggle_Lock_Out=false;
+  //         kitty_Dont_Play_Flag=false;
+  //       }
+  //     }
+  //   }else{
+  //     kitty_Dont_Play_Flag = false;
+  //     cat_Detected = false;
+  // }
+    if(cat_Has_Left_The_Chat && (millis()-kitty_Time>60000)){
       sleepULP();
     }
 
 
     cat = cat_Detected;
  if(what_Cat != cat_Detected){
-  what_Cat=cat_Detected;
-
-   //(millis()-catUpdateTime>10000)
-   //// mqtt.Update();
+    what_Cat = cat_Detected;
+    mqtt.Update();
     Cat_Is_Here.publish(cat);
-    catUpdateTime = millis();
     Serial.printf("\ncat detected bool = %i\n",cat);
-
   }
 
 
@@ -209,7 +215,7 @@ void loop() {
       wiggle_Lock_Out = true;
     }
   }
-  if(distance>150 && distance<405){
+  if(distance>175 && distance<370){
     if(!game_Lock){
       cat_Game_Select =random(0,3);
       Serial.printf("cat_Game_# = %i\n",cat_Game_Select);
